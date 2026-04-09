@@ -3,16 +3,21 @@ import Customer from "../models/Customer.js";
 const addCustomer = async (req, res) => {
 
     try {
-        const {customerName,phoneNumber}=req.body;
+        const { companyName, contactPersonName, phoneNumber, email, address, gstin, industryType } = req.body;
         const owner = req.user.email; // Get the authenticated user's email
         
-        if(!customerName || !phoneNumber) {
+        if(!companyName || !contactPersonName || !phoneNumber || !gstin) {
             return res.status(400).json({ message: "Please provide all required fields" });
         }
         const customer = new Customer({
             owner,
-            customerName,
-            phoneNumber
+            companyName,
+            contactPersonName,
+            phoneNumber,
+            email,
+            address,
+            gstin,
+            industryType
         });
 
         await customer.save();

@@ -6,36 +6,35 @@ import { uploadOnCloudinary } from "../config/cloudinary.js";
 const addSupplier = async (req, res) => {  // Make sure to include req and res parameters
   try {
     const owner = req.user.email
-    const { supplierName, totalPayment, depositAmount, date } = req.body;
-    const imageFile = req.file.path;
+    const { supplierName, contactPerson, phoneNumber, address, gstin, materialSupplied, ratePerKg, lastPurchaseDate, totalPayment, depositAmount } = req.body;
+    let imageUrl = null;
+    if (req.file && req.file.path) {
+        const imageUpload = await uploadOnCloudinary(req.file.path);
+        if (imageUpload && imageUpload.secure_url) {
+            imageUrl = imageUpload.secure_url;
+        }
+    }
 
-    
-
-    if (!supplierName || !totalPayment || !date) {
-      return res.status(400).json({  // Now res is defined
+    if (!supplierName || !phoneNumber || !gstin || !materialSupplied) {
+      return res.status(400).json({
         success: false,
-        message: 'Supplier name, total payment, and date are required fields'
+        message: 'Supplier name, phone, gstin, and material supplied are required fields'
       });
     }
 
-
-    // Upload image to Cloudinary
-    const imageUpload = await uploadOnCloudinary(imageFile);
-    if (!imageUpload || !imageUpload.secure_url) {
-      return res.status(500).json({ success: false, message: "Failed to upload image" });
-    }
-
-    const imageUrl = imageUpload.secure_url;
-
-    console.log("Image URL:", imageUrl); // Log the image URL for debugging
-
     const supplierData = new Supplier({
       owner,
-      supplierName: supplierName,
-      totalPayment: parseFloat(totalPayment),
+      supplierName,
+      contactPerson,
+      phoneNumber,
+      address,
+      gstin,
+      materialSupplied,
+      ratePerKg: parseFloat(ratePerKg || 0),
+      lastPurchaseDate: lastPurchaseDate ? new Date(lastPurchaseDate) : null,
+      totalPayment: parseFloat(totalPayment || 0),
       depositAmount: parseFloat(depositAmount || 0),
-      Date: new Date(date),
-      imageUrl:imageUrl
+      imageUrl: imageUrl
     });
 
 

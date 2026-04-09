@@ -1,5 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import cncImage from '../assets/cnc_machining.png';
+import precisionImage from '../assets/precision_components.png';
+import qualityImage from '../assets/quality_control.png';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -26,7 +29,7 @@ const HomePage = () => {
               alt="logo" 
             />
             <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 text-2xl tracking-widest hover:from-pink-500 hover:to-purple-500 transition-all duration-500">
-              ShopMananager
+              Avadhoot Auto Components
             </span>
           </div>
           <div className="flex gap-4">
@@ -61,10 +64,10 @@ const HomePage = () => {
         
         <div className="relative max-w-7xl mx-auto text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
-            Revolutionize Your Inventory
+            Precision Machined Components
           </h1>
           <h2 className="mt-6 text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
-            The most <span className="font-bold text-purple-300">powerful</span>, yet <span className="font-bold text-pink-300">simple</span> inventory management system you'll ever use
+            Serving the automotive, construction, and various other industries with <span className="font-bold text-pink-300">ISO 1461 certification</span>.
           </h2>
           <div className="mt-10 relative max-w-md mx-auto">
             <input
@@ -149,7 +152,7 @@ const HomePage = () => {
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500">
-              Stunning Visualizations
+              State-Of-The-Art Facilities
             </h2>
             <p className="mt-4 text-xl text-gray-300 max-w-2xl mx-auto">
               Beautiful dashboards that make data easy to understand
@@ -160,15 +163,15 @@ const HomePage = () => {
             {/* Card 1 */}
             <div className="group relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 h-96">
               <img
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+                src={cncImage}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                alt="Dashboard"
+                alt="CNC Machining"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/30 to-transparent flex items-end p-6">
                 <div>
-                  <h3 className="text-2xl font-bold text-white">Interactive Dashboards</h3>
+                  <h3 className="text-2xl font-bold text-white">CNC Machining</h3>
                   <p className="mt-2 text-gray-300 group-hover:text-white transition-colors duration-300">
-                    Real-time data visualization
+                    State-of-the-art 5-Axis Centers
                   </p>
                 </div>
               </div>
@@ -177,15 +180,15 @@ const HomePage = () => {
             {/* Card 2 */}
             <div className="group relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 h-96">
               <img
-                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+                src={precisionImage}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                alt="Analytics"
+                alt="Precision Components"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/30 to-transparent flex items-end p-6">
                 <div>
-                  <h3 className="text-2xl font-bold text-white">Advanced Analytics</h3>
+                  <h3 className="text-2xl font-bold text-white">Precision Assembly</h3>
                   <p className="mt-2 text-gray-300 group-hover:text-white transition-colors duration-300">
-                    Deep insights into your business
+                    High accuracy mechanical parts
                   </p>
                 </div>
               </div>
@@ -194,15 +197,15 @@ const HomePage = () => {
             {/* Card 3 */}
             <div className="group relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 h-96">
               <img
-                src="https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+                src={qualityImage}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                alt="Reports"
+                alt="Quality Control"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/30 to-transparent flex items-end p-6">
                 <div>
-                  <h3 className="text-2xl font-bold text-white">Custom Reports</h3>
+                  <h3 className="text-2xl font-bold text-white">Quality Control</h3>
                   <p className="mt-2 text-gray-300 group-hover:text-white transition-colors duration-300">
-                    Tailored to your business needs
+                    A.I.T.F. Certified validation
                   </p>
                 </div>
               </div>
@@ -220,10 +223,10 @@ const HomePage = () => {
         
         <div className="relative max-w-7xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to transform your inventory management?
+            Partner with Avadhoot Auto Components
           </h2>
           <p className="text-xl text-purple-100 max-w-2xl mx-auto mb-10">
-            Join thousands of businesses that trust Vyapar for their inventory needs.
+            We undertake manufacture of any type of precision components as required by our valued customers.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button 
@@ -252,7 +255,7 @@ const HomePage = () => {
                 alt="logo" 
               />
               <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 text-2xl tracking-widest">
-                ShopManager
+                Avadhoot Components
               </span>
             </div>
             <div className="flex gap-6">
@@ -276,7 +279,7 @@ const HomePage = () => {
           </div>
           <div className="mt-8 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2025 ShaopManager. All rights reserved.
+              © 2025 Avadhoot Auto Components. All rights reserved.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
               <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm">Privacy Policy</a>

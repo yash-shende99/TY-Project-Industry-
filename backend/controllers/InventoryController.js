@@ -70,16 +70,14 @@ export const UpdateProduct =async(req,res)=>{
     const email = req.user.email; // Get the authenticated user's email
     try {
         const { id } = req.params;
-        const { quantity, actualPrice, sellingPrice } = req.body;
+        const updateData = { ...req.body, dateUpdated: Date.now() };
+        delete updateData._id;
+        delete updateData.owner;
+        delete updateData.dateAdded;
 
         const product = await Product.findOneAndUpdate(
             { _id: id, owner: email }, 
-            {
-                quantity: parseInt(quantity),
-                actualPrice: parseFloat(actualPrice),
-                sellingPrice: parseFloat(sellingPrice),
-                dateUpdated: Date.now(),
-            },
+            updateData,
             { new: true }
         );
 

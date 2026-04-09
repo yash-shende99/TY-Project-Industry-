@@ -5,31 +5,27 @@ import Bill from "../models/Bill.js";
 
 
 export const CreateBill = async (req, res) => {
-    const owner = req.user.email; // Get the authenticated user's email
+    const owner = req.user.email; 
 
     try {
-        const { customerName, phoneNumber, deposit = 0, customerId, items } = req.body;
+        const { clientName, clientGstin, poNumber, deliveryChallanNumber, items, gstPercentage = 18 } = req.body;
 
-        // Generate bill number
-        const billNumber = `BILL-${Date.now()}`;
+        const invoiceNumber = `INV-${Date.now()}`;
 
-        // Calculate grand total and net quantity
-        let grandTotal = 0;
+        let subTotal = 0;
         let netQuantity = 0;
 
         for (const item of items) {
-            // Fetch product by ID and owner
             const product = await Product.findOne({ _id: item.productId, owner });
             if (product) {
                 if (product.quantity < item.quantity) {
                     return res.status(400).json({ message: `Not enough stock for ${product.name}` });
                 }
 
-                // Update grand total and net quantity
-                grandTotal += item.price * item.quantity;
+                subTotal += item.rate * item.quantity;
                 netQuantity += item.quantity;
 
-                // Update product quantity
+                // Update product quantity and status if needed
                 product.quantity -= item.quantity;
                 await product.save();
             } else {
@@ -37,48 +33,48 @@ export const CreateBill = async (req, res) => {
             }
         }
 
-        // Create new bill with initial history entry if deposit exists
-        const bill = new Bill({
+        const gstAmount = (subTotal * gstPercentage) / 100;
+        const grandTotal = subTotal + gstAmount;
+
+        const invoice = new Bill({
             owner,
-            customerName,
-            phoneNumber,
-            deposit,
-            customerId,
-            billNumber,
+            invoiceNumber,
+            clientName,
+            clientGstin,
+            poNumber,
+            deliveryChallanNumber,
             items,
+            subTotal,
+            gstPercentage,
+            gstAmount,
             grandTotal,
             netQuantity,
             date: new Date(),
-            history: deposit > 0 ? [{
-                date: new Date(),
-                depositHistory: deposit,
-                paymentMethod: 'Cash' // Default payment method
-            }] : []
+            history: [] // B2B payments are usually separated from instant deposit
         });
 
-        await bill.save();
+        await invoice.save();
 
-        res.status(201).json(bill);
+        res.status(201).json(invoice);
     } catch (error) {
-        console.error('Error creating bill:', error);
+        console.error('Error creating invoice:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
 export const GetBill = async (req, res) => {
-    const owner = req.user.email; // Get the authenticated user's email
+    const owner = req.user.email;
     try {
-        const data = await Bill.find({ owner }); // Fetch bills associated with the owner
-        if (data.length > 0) { // Check if any bills exist
-            res.status(200).json(data); // Return bills as JSON
+        const data = await Bill.find({ owner }).sort({ date: -1 }); 
+        if (data.length > 0) {
+            res.status(200).json(data);
         } else {
-            res.status(404).json({ message: "No bills found for this user" }); // More informative message
+            res.status(404).json({ message: "No invoices found for this user" });
         }
     } catch (error) {
-        console.error('Error fetching bills:', error); // Log error for debugging
+        console.error('Error fetching invoices:', error);
         res.status(500).json({ message: "Server Error", error });
     }
-
 };
 
 

@@ -12,10 +12,11 @@ const StoreContextProvider = (props) => {
   const [token,setToken]=useState(localStorage.getItem('token')? localStorage.getItem('token') : null);
 
   const [customerData, setCustomerData] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [bill, setBill] = useState([]);
 
 
-  const backend_url="https://smart-inventory-management-system-backend.vercel.app"
+  const backend_url="http://localhost:3000"
 
   
 
@@ -30,6 +31,18 @@ const StoreContextProvider = (props) => {
       setCustomerData(response.data);
     } catch (err) {
       console.error('Error fetching customers:', err);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(backend_url+'/api/inventory/categories', {
+        headers: { Authorization: token }
+      });
+      setCategories(response.data);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
     }
   };
 
@@ -74,6 +87,7 @@ const StoreContextProvider = (props) => {
 
   useEffect(() => {
     fetchCustomers();
+    fetchCategories();
     fetchBill();
   }, [])
 
@@ -90,7 +104,8 @@ const StoreContextProvider = (props) => {
     backend_url,
     token,
     setToken,
-
+    categories,
+    fetchCategories,
   }
 
 
