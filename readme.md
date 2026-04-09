@@ -1,65 +1,58 @@
-# 🛒 ShopManager – Smart Inventory Management System
+# 🏭 Avadhoot Auto Components – B2B Manufacturing & Inventory Management System
 
-**ShopManager** is an intuitive inventory and billing system designed specifically for small and medium merchant stores. It helps merchants efficiently manage stock, sales, and billing while automating key tasks to save time and reduce errors.
-
----
-
-## 🚀 Features
-
-- 🧾 **Borrow Account Management**: Track credit and customer borrow history seamlessly.
-- 📄 **Fast Bill Generation**: Generate bills quickly using scanner input.
-- 📦 **Barcode Generation**: Generate and print barcode labels for different products.
-- ⏰ **Expiry Date Reminders**: Automated alerts for products nearing expiry to take timely action.
-- 📲 **WhatsApp Integration**: Send bills and invoices directly to customers via WhatsApp.
-- 📊 **Interactive Dashboards**: Dynamic sales and product dashboards featuring:
-  - Daily, weekly, and monthly sales analysis.
-  - Product stock levels and inventory turnover tracking.
-  - Comprehensive insights into overall store performance.
-- 📝 **Product Remarks**: Note-taking feature to add remarks for finished or returned products.
-- 🔍 **User-Friendly Interface**: An easy-to-use aesthetic interface for seamless stock and sales management.
+**Avadhoot Auto Components** is a high-end, "Industrial Midnight" B2B manufacturing and inventory management platform designed for precision manufacturing operations. Featuring a premium glassmorphic UI, this system handles everything from deep inventory tracking to automated billing for enterprise and medium-scale manufacturing clients.
 
 ---
 
-## 🛠️ Tech Stack
+## 🚀 Key Features
+
+- 🧾 **B2B Supplier & Customer Management**: Keep precise track of supplier deliveries, manufacturer credits, and large-scale borrowing histories.
+- 📄 **Rapid Industrial Billing**: High-speed, robust bill generator optimized for wholesale auto component distribution with barcode scanning capabilities.
+- 📦 **Barcode Infrastructure**: Generate and print industry-standard barcode labels for auto components for seamless tracking.
+- ⏰ **Quality Control & Expiry Reminders**: Automated tracking and alerts for component quality assurance and warranty periods.
+- 📲 **WhatsApp Invoicing Integration**: Dispatch quotes, formal invoices, and bills directly to manufacturing clients via WhatsApp.
+- 📊 **Executive Analytics Dashboard**: Dynamic, data-dense reporting metrics featuring:
+  - Daily, weekly, and monthly wholesale revenue analysis.
+  - Granular stock levels and inventory turnover rate insights.
+- 📝 **Quality Assurance Remarks**: Comprehensive note-taking mechanisms for finished components, client returns, or defective parts tracking.
+- 🔍 **Premium "Industrial Midnight" UI**: A dark-mode, precision-focused interface explicitly designed to empower productivity in professional manufacturing environments.
+
+---
+
+## 🛠️ Tech Stack & Architecture
 
 ### Frontend
-- **React.js**
-- **Tailwind CSS**
-- **Vite**
+- **React.js** (UI Logic & Component Structure)
+- **Tailwind CSS** (Industrial Midnight UI/UX Styling)
+- **Vite** (High-performance build tooling)
 
 ### Backend
-- **Node.js** & **Express.js**
-- **MongoDB** & **Mongoose**
-- **Cloudinary** (Image Storage)
-- **Twilio** (WhatsApp integration)
-- **JWT** (Authentication)
+- **Node.js** & **Express.js** (Robust backend API layer)
+- **MongoDB** & **Mongoose** (Scalable document database)
+- **Cloudinary** (Cloud repository for component images)
+- **Twilio** (Real-time WhatsApp communications)
+- **JWT** (Secure, token-based authentication)
 
 ---
 
-## 🔗 Live Preview
+## 💻 Local Development Setup
 
-- 🚀 [ShopManager Live Demo](https://smart-inventory-management-system-frontend.vercel.app/) 
+Follow these steps to deploy the Avadhoot Auto Components system in your local environment.
 
----
-
-## 💻 Running Locally
-
-Follow these steps to set up the project on your local machine.
-
-### 1. Clone the repository
+### 1. Repository Access
 ```bash
 git clone <repository-url>
 cd ShopManager-Smart-Inventory-Management-App
 ```
 
-### 2. Backend Setup
-Navigate to the backend directory and configure the environment:
+### 2. Backend Initialization
+Navigate to the backend directory to configure environment logic:
 ```bash
 cd backend
 npm install
 ```
 
-Create a `.env` file in the `backend` directory and add the necessary variables:
+Create a `.env` file in the `backend` directory and add the necessary API configurations:
 ```env
 PORT=8080
 MONGO_URL=your_mongodb_connection_string
@@ -69,17 +62,17 @@ CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ```
 
-Start the backend development server:
+Launch the backend API layer:
 ```bash
 npm run server
 ```
 
-### 3. Frontend Setup
-Open a new terminal, navigate to the Frontend directory, and start the app:
+### 3. Frontend Initialization
+Open a new terminal window, navigate to the Frontend directory, and initialize the client:
 ```bash
 cd Frontend
 npm install
 npm run dev
 ```
 
-The frontend will start on your local Vite server (typically `http://localhost:5173`).
+The enterprise frontend interface will start on your local Vite server (typically accessible at `http://localhost:5173`).
