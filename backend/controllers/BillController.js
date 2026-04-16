@@ -14,23 +14,24 @@ export const CreateBill = async (req, res) => {
 
         let subTotal = 0;
         let netQuantity = 0;
+        const productsToUpdate = [];
 
+        // Phase 1: Verification
         for (const item of items) {
             const product = await Product.findOne({ _id: item.productId, owner });
-            if (product) {
-                if (product.quantity < item.quantity) {
-                    return res.status(400).json({ message: `Not enough stock for ${product.name}` });
-                }
-
-                subTotal += item.rate * item.quantity;
-                netQuantity += item.quantity;
-
-                // Update product quantity and status if needed
-                product.quantity -= item.quantity;
-                await product.save();
-            } else {
-                return res.status(404).json({ message: `Product with ID ${item.productId} not found` });
+            if (!product) {
+                return res.status(404).json({ message: `Product ${item.productName || item.productId} not found` });
             }
+            if (product.quantity < item.quantity) {
+                return res.status(400).json({ message: `Not enough stock for ${product.name}` });
+            }
+
+            const itemRate = item.rate || item.price || 0;
+            subTotal += itemRate * item.quantity;
+            netQuantity += item.quantity;
+            
+            product.quantity -= item.quantity;
+            productsToUpdate.push(product);
         }
 
         const gstAmount = (subTotal * gstPercentage) / 100;
@@ -40,7 +41,7 @@ export const CreateBill = async (req, res) => {
             owner,
             invoiceNumber,
             clientName,
-            clientGstin,
+            clientGstin: clientGstin || 'UNREGISTERED',
             poNumber,
             deliveryChallanNumber,
             items,
@@ -53,12 +54,19 @@ export const CreateBill = async (req, res) => {
             history: [] // B2B payments are usually separated from instant deposit
         });
 
+        // Phase 2: Validate invoice before touching database stock
+        await invoice.validate();
+
+        // Phase 3: Execute DB writes
+        for (const product of productsToUpdate) {
+            await product.save();
+        }
         await invoice.save();
 
         res.status(201).json(invoice);
     } catch (error) {
         console.error('Error creating invoice:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: error.message || 'Internal Server Error' });
     }
 };
 

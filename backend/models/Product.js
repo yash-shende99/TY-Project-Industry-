@@ -10,12 +10,12 @@ const productSchema = new mongoose.Schema({
     
     // Engineering Details
     materialType: { type: String, required: true }, // MS, EN8, Brass, etc.
-    dimensions: { type: String, required: true }, // Length, Diameter, Thread size
-    drawingNumber: { type: String, required: true }, // Mandatory for manufacturing
+    dimensions: { type: String }, // Length, Diameter, Thread size
+    drawingNumber: { type: String }, // Mandatory for manufacturing
     tolerance: { type: String }, // Optional but powerful
     
     // Production Tracking
-    batchNumber: { type: String, required: true },
+    batchNumber: { type: String },
     heatNumber: { type: String }, // Applicable for metals
     manufacturingDate: { type: Date, required: true },
     status: { 
@@ -26,7 +26,7 @@ const productSchema = new mongoose.Schema({
     
     // Inventory
     quantity: { type: Number, required: true }, // Quantity in Stock
-    minStockLevel: { type: Number, required: true },
+    minStockLevel: { type: Number, default: 0 },
     
     dateAdded: { type: Date, default: Date.now },
     dateUpdated: { type: Date, default: Date.now }

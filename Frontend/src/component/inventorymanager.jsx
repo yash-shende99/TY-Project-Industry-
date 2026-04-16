@@ -163,15 +163,13 @@ function InventoryManager() {
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                            {/* Basic Info */}
-                            <div className="col-span-3 pb-1 border-b border-white/10"><h3 className="text-xs font-bold text-purple-400 uppercase tracking-widest">Base Identity</h3></div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-400 mb-1 tracking-wide">Component Name</label>
-                                <input type="text" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} className="w-full px-4 py-2 rounded-lg input-glow" />
-                            </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-400 mb-1 tracking-wide">Product Code</label>
                                 <input type="text" value={newProduct.productCode} onChange={(e) => setNewProduct({ ...newProduct, productCode: e.target.value })} className="w-full px-4 py-2 rounded-lg input-glow" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-400 mb-1 tracking-wide">Component Name</label>
+                                <input type="text" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} className="w-full px-4 py-2 rounded-lg input-glow" />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-400 mb-1 tracking-wide">Category</label>
@@ -193,44 +191,17 @@ function InventoryManager() {
                                     </div>
                                 )}
                             </div>
-
-                            {/* Engineering Info */}
-                            <div className="col-span-3 mt-4 pb-1 border-b border-white/10"><h3 className="text-xs font-bold text-pink-400 uppercase tracking-widest">Engineering Specs</h3></div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-400 mb-1 tracking-wide">Drawing Number *</label>
-                                <input type="text" value={newProduct.drawingNumber} onChange={(e) => setNewProduct({ ...newProduct, drawingNumber: e.target.value })} className="w-full px-4 py-2 rounded-lg input-glow border-pink-500/50 bg-pink-900/10 focus:border-pink-500" />
-                            </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-400 mb-1 tracking-wide">Material Type</label>
                                 <input type="text" placeholder="e.g. MS, EN8" value={newProduct.materialType} onChange={(e) => setNewProduct({ ...newProduct, materialType: e.target.value })} className="w-full px-4 py-2 rounded-lg input-glow" />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-400 mb-1 tracking-wide">Dimensions & Tolerance</label>
-                                <div className="flex space-x-2">
-                                    <input type="text" placeholder="Dims" value={newProduct.dimensions} onChange={(e) => setNewProduct({ ...newProduct, dimensions: e.target.value })} className="w-1/2 px-4 py-2 rounded-lg input-glow" />
-                                    <input type="text" placeholder="Tol" value={newProduct.tolerance} onChange={(e) => setNewProduct({ ...newProduct, tolerance: e.target.value })} className="w-1/2 px-4 py-2 rounded-lg input-glow" />
-                                </div>
-                            </div>
-
-                            {/* Production Info */}
-                            <div className="col-span-3 mt-4 pb-1 border-b border-white/10"><h3 className="text-xs font-bold text-blue-400 uppercase tracking-widest">Production & Run</h3></div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-400 mb-1 tracking-wide">Batch / Heat No</label>
-                                <div className="flex space-x-2">
-                                    <input type="text" placeholder="Batch" value={newProduct.batchNumber} onChange={(e) => setNewProduct({ ...newProduct, batchNumber: e.target.value })} className="w-1/2 px-4 py-2 rounded-lg input-glow font-mono" />
-                                    <input type="text" placeholder="Heat" value={newProduct.heatNumber} onChange={(e) => setNewProduct({ ...newProduct, heatNumber: e.target.value })} className="w-1/2 px-4 py-2 rounded-lg input-glow font-mono" />
-                                </div>
+                                <label className="block text-xs font-semibold text-gray-400 mb-1 tracking-wide">Stock Quantity</label>
+                                <input type="number" placeholder="Qty" value={newProduct.quantity} onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })} className="w-full px-4 py-2 rounded-lg input-glow" />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-400 mb-1 tracking-wide">Manufacturing Date</label>
                                 <input type="date" value={newProduct.manufacturingDate} onChange={(e) => setNewProduct({ ...newProduct, manufacturingDate: e.target.value })} className="w-full px-4 py-2 rounded-lg input-glow" style={{ colorScheme: 'dark' }} />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-400 mb-1 tracking-wide">Current Stock & Min Level</label>
-                                <div className="flex space-x-2">
-                                    <input type="number" placeholder="Qty" value={newProduct.quantity} onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })} className="w-1/2 px-4 py-2 rounded-lg input-glow" />
-                                    <input type="number" placeholder="Min" value={newProduct.minStockLevel} onChange={(e) => setNewProduct({ ...newProduct, minStockLevel: e.target.value })} className="w-1/2 px-4 py-2 rounded-lg input-glow" />
-                                </div>
                             </div>
                         </div>
 
@@ -247,12 +218,12 @@ function InventoryManager() {
                         <table className="min-w-full divide-y divide-white/10">
                             <thead className="bg-[#1a1625]/80 backdrop-blur-sm">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-purple-300 uppercase tracking-wider">Component Identity</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-purple-300 uppercase tracking-wider">Drawing No.</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-purple-300 uppercase tracking-wider">Material</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-purple-300 uppercase tracking-wider">Batch Tracker</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-purple-300 uppercase tracking-wider">Op Status</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-purple-300 uppercase tracking-wider">Qty</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-purple-300 uppercase tracking-wider">Product Code</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-purple-300 uppercase tracking-wider">Component Name</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-purple-300 uppercase tracking-wider">Category</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-purple-300 uppercase tracking-wider">Material Type</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-purple-300 uppercase tracking-wider">Stock Quantity</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-purple-300 uppercase tracking-wider">Manufacturing Date</th>
                                     <th className="px-6 py-4 text-right text-xs font-bold text-purple-300 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
@@ -260,40 +231,19 @@ function InventoryManager() {
                                 {filteredProducts.length > 0 ? (
                                     filteredProducts.map((product) => (
                                         <tr key={product._id} className="hover:bg-white/5 transition-all duration-300 group">
-                                            <td className="px-6 py-5 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    <div className="w-2 h-10 w-1 rounded-sm bg-gradient-to-b from-purple-500 to-pink-500 mr-4 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                                    <div>
-                                                        <div className="text-sm font-bold text-white tracking-wide">{product.name}</div>
-                                                        <div className="text-xs text-gray-400 mt-1">{product.category} <span className="text-pink-500 mx-1">&bull;</span> {product.productCode}</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-5 whitespace-nowrap">
-                                                <span className="text-sm font-mono text-pink-300 bg-pink-500/10 border border-pink-500/20 px-3 py-1 rounded-md shadow-inner">{product.drawingNumber}</span>
-                                            </td>
+                                            <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-300 font-mono">{product.productCode}</td>
+                                            <td className="px-6 py-5 whitespace-nowrap text-sm font-bold text-white">{product.name}</td>
+                                            <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-400">{product.category}</td>
                                             <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-300">{product.materialType}</td>
-                                            <td className="px-6 py-5 whitespace-nowrap">
-                                                <div className="text-sm text-gray-200">B: <span className="font-mono text-purple-300">{product.batchNumber}</span></div>
-                                                <div className="text-xs text-gray-500 mt-1">H: <span className="font-mono">{product.heatNumber || '-'}</span></div>
-                                            </td>
-                                            <td className="px-6 py-5 whitespace-nowrap">
-                                                <span className={`px-3 py-1 inline-flex text-xs font-bold rounded-full border shadow-sm ${
-                                                    product.status === 'Ready' ? 'bg-green-500/10 text-green-400 border-green-500/30' :
-                                                    product.status === 'Dispatched' ? 'bg-gray-500/10 text-gray-400 border-gray-500/30' :
-                                                    'bg-yellow-500/10 text-yellow-400 border-yellow-500/30 animate-pulse'
-                                                }`}>
-                                                    {product.status === 'Ready' && <span className="w-1.5 h-1.5 rounded-full bg-green-400 mr-2 my-auto"></span>}
-                                                    {product.status === 'In Production' && <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 mr-2 my-auto"></span>}
-                                                    {product.status || 'Ready'}
-                                                </span>
-                                            </td>
                                             <td className="px-6 py-5 whitespace-nowrap">
                                                 <span className={`px-3 py-1.5 inline-flex text-sm font-bold rounded-md ${
                                                     product.quantity <= product.minStockLevel 
                                                     ? 'bg-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.4)] border border-red-500/50 text-red-300 animate-pulse' 
                                                     : 'bg-white/5 border border-white/10 text-white'
                                                 }`}>{product.quantity}</span>
+                                            </td>
+                                            <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-400">
+                                                {product.manufacturingDate ? new Date(product.manufacturingDate).toLocaleDateString() : '-'}
                                             </td>
                                             <td className="px-6 py-5 whitespace-nowrap text-right text-sm">
                                                 <div className="flex justify-end gap-3 opacity-70 group-hover:opacity-100 transition-opacity">

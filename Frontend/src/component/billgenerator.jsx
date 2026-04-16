@@ -29,8 +29,11 @@ function InvoiceGenerator() {
     
     // Add Item Controls
     const [selectedProduct, setSelectedProduct] = useState('');
-    const [quantityInput, setQuantityInput] = useState();
-    const [rateInput, setRateInput] = useState();
+    const [quantityInput, setQuantityInput] = useState('');
+    const [rateInput, setRateInput] = useState('');
+    
+    // Financial Controls
+    const [applyGst, setApplyGst] = useState(true);
     
     const invoiceRef = useRef();
 
@@ -84,7 +87,7 @@ function InvoiceGenerator() {
         if (existingItemIndex !== -1) {
             const updatedItems = [...items];
             updatedItems[existingItemIndex].quantity += quantityNum;
-            updatedItems[existingItemIndex].price = rateNum;
+            updatedItems[existingItemIndex].rate = rateNum;
             updatedItems[existingItemIndex].total = updatedItems[existingItemIndex].quantity * rateNum;
             setItems(updatedItems);
             handleSuccess(`Updated ${product.name} quantity.`);
@@ -94,7 +97,7 @@ function InvoiceGenerator() {
                 productName: product.name,
                 drawingNumber: product.drawingNumber,
                 quantity: quantityNum,
-                price: rateNum,
+                rate: rateNum,
                 total: rateNum * quantityNum
             }]);
             handleSuccess(`Added ${product.name} to invoice.`);
@@ -122,23 +125,26 @@ function InvoiceGenerator() {
             const response = await axios.post(backend_url + '/api/bill/create', {
                 customerName: companyName, // Map backwards compatibility
                 companyName: companyName,
+                clientName: companyName,
                 phoneNumber: phoneNumber,
                 gstin: customerGstin,
+                clientGstin: customerGstin,
                 poNumber: poNumber,
                 poDate: poDate || new Date().toISOString(),
                 dispatchDate: dispatchDate || new Date().toISOString(),
                 vehicleNumber: vehicleNumber,
                 items: items,
                 subTotal: items.reduce((acc, item) => acc + item.total, 0),
-                taxAmount: items.reduce((acc, item) => acc + item.total, 0) * 0.18,
-                grandTotal: items.reduce((acc, item) => acc + item.total, 0) * 1.18,
+                gstPercentage: applyGst ? 18 : 0,
+                taxAmount: items.reduce((acc, item) => acc + item.total, 0) * (applyGst ? 0.18 : 0),
+                grandTotal: items.reduce((acc, item) => acc + item.total, 0) * (applyGst ? 1.18 : 1),
                 customerId: selectedCustomer || null
             }, { headers: { "Authorization": token } });
 
             setInvoice(response.data);
             handleSuccess('Tax Invoice generated securely');
         } catch (error) {
-            handleError("Error in generating invoice.");
+            handleError(error.response?.data?.message || "Error in generating invoice.");
             console.error(error);
         } finally {
             setIsLoading(false);
@@ -160,7 +166,7 @@ function InvoiceGenerator() {
 
     const handlePrint = useReactToPrint({
         content: () => invoiceRef.current,
-        documentTitle: `Tax_Invoice_${invoice?.billNumber || 'New'}`,
+        documentTitle: `Tax_Invoice_${invoice?.invoiceNumber || invoice?.billNumber || 'New'}`,
     });
 
     const saveAsPDF = () => {
@@ -172,10 +178,10 @@ function InvoiceGenerator() {
         doc.line(20, 35, 190, 35);
 
         doc.setFontSize(10);
-        doc.text(`Company Name: ${invoice.companyName || invoice.customerName}`, 20, 45);
-        doc.text(`GSTIN: ${invoice.gstin || 'N/A'}`, 20, 50);
-        doc.text(`Invoice No: ${invoice.billNumber}`, 140, 45);
-        doc.text(`Date: ${new Date(invoice.createdAt).toLocaleDateString()}`, 140, 50);
+        doc.text(`Company Name: ${invoice.clientName || invoice.companyName || invoice.customerName}`, 20, 45);
+        doc.text(`GSTIN: ${invoice.clientGstin || invoice.gstin || 'N/A'}`, 20, 50);
+        doc.text(`Invoice No: ${invoice.invoiceNumber || invoice.billNumber}`, 140, 45);
+        doc.text(`Date: ${new Date(invoice.date || invoice.createdAt).toLocaleDateString()}`, 140, 50);
         doc.text(`PO Number: ${invoice.poNumber || 'N/A'}`, 20, 60);
 
         doc.setFillColor(230, 230, 230);
@@ -191,7 +197,8 @@ function InvoiceGenerator() {
             doc.text(item.productName, 22, y);
             doc.text(item.drawingNumber || '-', 90, y);
             doc.text(item.quantity.toString(), 130, y);
-            doc.text(item.price.toFixed(2), 150, y);
+            const r = item.rate || item.price || 0;
+            doc.text(r.toFixed(2), 150, y);
             doc.text(item.total.toFixed(2), 175, y);
             y += 8;
         });
@@ -200,21 +207,28 @@ function InvoiceGenerator() {
         
         y += 15;
         let subTotal = invoice.subTotal || invoice.items.reduce((a, b) => a + b.total, 0);
-        let tax = subTotal * 0.18;
+        let gstPerc = invoice.gstPercentage !== undefined ? invoice.gstPercentage : 18;
+        let isGst = gstPerc > 0;
+        let tax = subTotal * (gstPerc / 100);
         let grandTotal = subTotal + tax;
 
         doc.text(`Sub Total: Rs. ${subTotal.toFixed(2)}`, 140, y);
-        doc.text(`CGST (9%): Rs. ${(tax/2).toFixed(2)}`, 140, y+8);
-        doc.text(`SGST (9%): Rs. ${(tax/2).toFixed(2)}`, 140, y+16);
-        doc.setFont(undefined, 'bold');
-        doc.text(`Grand Total: Rs. ${grandTotal.toFixed(2)}`, 140, y+24);
+        if (isGst) {
+            doc.text(`CGST (${gstPerc/2}%): Rs. ${(tax/2).toFixed(2)}`, 140, y+8);
+            doc.text(`SGST (${gstPerc/2}%): Rs. ${(tax/2).toFixed(2)}`, 140, y+16);
+            doc.setFont(undefined, 'bold');
+            doc.text(`Grand Total: Rs. ${grandTotal.toFixed(2)}`, 140, y+24);
+        } else {
+            doc.setFont(undefined, 'bold');
+            doc.text(`Grand Total: Rs. ${grandTotal.toFixed(2)}`, 140, y+8);
+        }
         doc.setFont(undefined, 'normal');
         
-        doc.save(`Invoice_${invoice.billNumber}.pdf`);
+        doc.save(`Invoice_${invoice.invoiceNumber || invoice.billNumber}.pdf`);
     };
 
     const subTotal = items.reduce((acc, item) => acc + item.total, 0);
-    const taxAmount = subTotal * 0.18;
+    const taxAmount = subTotal * (applyGst ? 0.18 : 0);
     const finalTotal = subTotal + taxAmount;
 
     return (
@@ -311,6 +325,16 @@ function InvoiceGenerator() {
                                         <Plus size={20} className="mr-2" /> Inject
                                     </button>
                                 </div>
+                                
+                                <div className="flex justify-end items-center mb-4 pb-4 border-b border-white/5 space-x-3">
+                                    <span className="text-sm font-bold text-gray-400 tracking-widest uppercase">Apply 18% GST</span>
+                                    <div 
+                                        className={`w-14 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 shadow-inner ${applyGst ? 'bg-pink-500' : 'bg-gray-700'}`}
+                                        onClick={() => setApplyGst(!applyGst)}
+                                    >
+                                        <div className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 ${applyGst ? 'translate-x-7' : 'translate-x-0'}`}></div>
+                                    </div>
+                                </div>
 
                                 {/* Items Table */}
                                 <div className="border border-white/10 rounded-xl overflow-hidden shadow-inner">
@@ -331,7 +355,7 @@ function InvoiceGenerator() {
                                                     <td className="px-6 py-4 text-sm font-bold text-white tracking-wide">{item.productName}</td>
                                                     <td className="px-6 py-4 text-sm font-mono text-gray-500">{item.drawingNumber || '-'}</td>
                                                     <td className="px-6 py-4 text-sm text-right text-gray-300 font-mono">{item.quantity}</td>
-                                                    <td className="px-6 py-4 text-sm text-right text-gray-300 font-mono">₹{item.price.toFixed(2)}</td>
+                                                    <td className="px-6 py-4 text-sm text-right text-gray-300 font-mono">₹{(item.rate || item.price || 0).toFixed(2)}</td>
                                                     <td className="px-6 py-4 text-sm text-right font-bold text-pink-300 font-mono">₹{item.total.toFixed(2)}</td>
                                                     <td className="px-6 py-4 text-center">
                                                         <button onClick={() => removeItem(index)} className="p-2 text-gray-600 hover:text-red-400 bg-transparent hover:bg-red-500/10 rounded-lg transition-all border border-transparent hover:border-red-500/30 inline-block mx-auto">
@@ -344,15 +368,17 @@ function InvoiceGenerator() {
                                         {items.length > 0 && (
                                             <tfoot className="bg-black/60 border-t border-white/20">
                                                 <tr>
-                                                    <td colSpan="4" className="px-6 py-4 text-right font-medium text-gray-400 uppercase text-xs tracking-wider">Taxable Assessment:</td>
+                                                    <td colSpan="4" className="px-6 py-4 text-right font-medium text-gray-400 uppercase text-xs tracking-wider">Subtotal:</td>
                                                     <td className="px-6 py-4 text-right font-bold text-white font-mono text-lg">₹{subTotal.toFixed(2)}</td>
                                                     <td></td>
                                                 </tr>
+                                                {applyGst && (
                                                 <tr>
                                                     <td colSpan="4" className="px-6 py-3 text-right font-medium text-purple-400 uppercase text-xs tracking-wider">GST Impact (18%):</td>
                                                     <td className="px-6 py-3 text-right font-bold text-purple-300 font-mono">₹{taxAmount.toFixed(2)}</td>
                                                     <td></td>
                                                 </tr>
+                                                )}
                                                 <tr className="border-t border-white/10 bg-gradient-to-r from-transparent to-pink-900/20">
                                                     <td colSpan="4" className="px-6 py-6 text-right font-extrabold text-pink-400 tracking-widest uppercase">Computed Grand Total:</td>
                                                     <td className="px-6 py-6 text-right font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 text-2xl font-mono">₹{finalTotal.toFixed(2)}</td>
@@ -401,8 +427,8 @@ function InvoiceGenerator() {
                                     <div className="flex justify-between mb-8 text-sm">
                                         <div className="w-1/2 pr-4">
                                             <p className="font-bold text-gray-600 uppercase text-xs mb-2 tracking-wider">Billed To (Consignee)</p>
-                                            <p className="font-bold text-gray-900 text-lg mb-1">{invoice.companyName || invoice.customerName}</p>
-                                            <p className="text-gray-800 font-mono font-medium mb-1">GSTIN: {invoice.gstin || 'UNREGISTERED'}</p>
+                                            <p className="font-bold text-gray-900 text-lg mb-1">{invoice.clientName || invoice.companyName || invoice.customerName}</p>
+                                            <p className="text-gray-800 font-mono font-medium mb-1">GSTIN: {invoice.clientGstin || invoice.gstin || 'UNREGISTERED'}</p>
                                             {invoice.phoneNumber && <p className="text-gray-700">Contact: {invoice.phoneNumber}</p>}
                                         </div>
                                         <div className="w-1/2 pl-4">
@@ -410,11 +436,11 @@ function InvoiceGenerator() {
                                                 <tbody>
                                                     <tr>
                                                         <td className="border border-gray-300 p-2 font-bold text-xs uppercase bg-gray-50 text-gray-600 w-1/3">Invoice No.</td>
-                                                        <td className="border border-gray-300 p-2 font-bold text-gray-900">{invoice.billNumber}</td>
+                                                        <td className="border border-gray-300 p-2 font-bold text-gray-900">{invoice.invoiceNumber || invoice.billNumber}</td>
                                                     </tr>
                                                     <tr>
                                                         <td className="border border-gray-300 p-2 font-bold text-xs uppercase bg-gray-50 text-gray-600">Date</td>
-                                                        <td className="border border-gray-300 p-2 font-medium">{new Date(invoice.createdAt).toLocaleDateString()}</td>
+                                                        <td className="border border-gray-300 p-2 font-medium">{new Date(invoice.date || invoice.createdAt).toLocaleDateString()}</td>
                                                     </tr>
                                                     <tr>
                                                         <td className="border border-gray-300 p-2 font-bold text-xs uppercase bg-gray-50 text-gray-600">PO Ref.</td>
@@ -447,7 +473,7 @@ function InvoiceGenerator() {
                                                     <td className="border-r border-gray-900 px-3 py-2 font-bold text-gray-900">{it.productName}</td>
                                                     <td className="border-r border-gray-900 px-3 py-2 text-center font-mono text-xs text-gray-600">{it.drawingNumber || '-'}</td>
                                                     <td className="border-r border-gray-900 px-3 py-2 text-right font-medium">{it.quantity}</td>
-                                                    <td className="border-r border-gray-900 px-3 py-2 text-right">{it.price.toFixed(2)}</td>
+                                                    <td className="border-r border-gray-900 px-3 py-2 text-right">{(it.rate || it.price || 0).toFixed(2)}</td>
                                                     <td className="px-3 py-2 text-right font-medium">{(it.total).toFixed(2)}</td>
                                                 </tr>
                                             ))}
@@ -458,7 +484,8 @@ function InvoiceGenerator() {
                                         <tfoot>
                                             {(() => {
                                                 const sTotal = invoice.subTotal || invoice.items.reduce((a,b) => a+b.total, 0);
-                                                const tax = sTotal * 0.18;
+                                                const gPerc = invoice.gstPercentage !== undefined ? invoice.gstPercentage : 18;
+                                                const tax = sTotal * (gPerc / 100);
                                                 const gTotal = sTotal + tax;
                                                 return (
                                                 <>
@@ -466,10 +493,12 @@ function InvoiceGenerator() {
                                                         <td colSpan="5" className="border-r border-gray-900 px-3 py-2 text-right font-bold text-gray-800 uppercase text-xs">Sub Total</td>
                                                         <td className="px-3 py-2 text-right font-bold text-gray-900">₹{sTotal.toFixed(2)}</td>
                                                     </tr>
+                                                    {gPerc > 0 && (
                                                     <tr>
-                                                        <td colSpan="5" className="border-r border-gray-900 px-3 py-2 text-right font-bold text-gray-600 text-xs">CGST / IGST @ 18%</td>
+                                                        <td colSpan="5" className="border-r border-gray-900 px-3 py-2 text-right font-bold text-gray-600 text-xs">{`CGST / IGST @ ${gPerc}%`}</td>
                                                         <td className="px-3 py-2 text-right font-medium text-gray-800">₹{tax.toFixed(2)}</td>
                                                     </tr>
+                                                    )}
                                                     <tr className="border-t-2 border-gray-900 bg-gray-100">
                                                         <td colSpan="4" className="border-r border-gray-900 px-3 py-3 text-right">
                                                             <span className="text-[10px] text-gray-500 font-bold block uppercase tracking-widest text-center">SUBJECT TO PUNE JURISDICTION</span>

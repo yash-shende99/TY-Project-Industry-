@@ -1,4 +1,4 @@
-import { React } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from "./card";
 import Footer from "./footer";
 import { ToastContainer } from 'react-toastify';
@@ -17,19 +17,66 @@ import {
 } from 'react-icons/fi';
 
 const Dashboard = () => {
-  // Sample data for statistics
-  const stats = [
-    { title: "Today's Sales", value: "₹12,450", change: "+12%", icon: <FiTrendingUp className="text-green-500" />, color: "bg-green-100" },
-    { title: "Monthly Revenue", value: "₹2,34,500", change: "+8%", icon: <FiDollarSign className="text-blue-500" />, color: "bg-blue-100" },
-    { title: "Total Products", value: "128", change: "+5", icon: <FiPackage className="text-purple-500" />, color: "bg-purple-100" },
-    { title: "Active Suppliers", value: "24", change: "+2", icon: <FiUsers className="text-orange-500" />, color: "bg-orange-100" }
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/dashboard/stats", {
+          headers: {
+            "Authorization": localStorage.getItem("token")
+          }
+        });
+        const result = await response.json();
+        if (response.ok) {
+          setData(result);
+        } else {
+          console.error("Failed to fetch dashboard stats", result);
+        }
+      } catch (err) {
+        console.error("Error fetching stats:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboardStats();
+  }, []);
+
+  const stats = data ? [
+    { title: "Today's Sales", value: `₹${data.stats.todaysSales}`, change: "", icon: <FiTrendingUp className="text-green-500" />, color: "bg-green-100" },
+    { title: "Monthly Revenue", value: `₹${data.stats.monthlyRevenue}`, change: "", icon: <FiDollarSign className="text-blue-500" />, color: "bg-blue-100" },
+    { title: "Total Products", value: data.stats.totalProducts, change: "", icon: <FiPackage className="text-purple-500" />, color: "bg-purple-100" },
+    { title: "Active Suppliers", value: data.stats.activeSuppliers, change: "", icon: <FiUsers className="text-orange-500" />, color: "bg-orange-100" }
+  ] : [
+    { title: "Today's Sales", value: "₹0", change: "", icon: <FiTrendingUp className="text-green-500" />, color: "bg-green-100" },
+    { title: "Monthly Revenue", value: "₹0", change: "", icon: <FiDollarSign className="text-blue-500" />, color: "bg-blue-100" },
+    { title: "Total Products", value: "0", change: "", icon: <FiPackage className="text-purple-500" />, color: "bg-purple-100" },
+    { title: "Active Suppliers", value: "0", change: "", icon: <FiUsers className="text-orange-500" />, color: "bg-orange-100" }
   ];
 
-  const recentActivities = [
-    { id: 1, type: "sale", title: "New sale recorded", details: "Order #1001 for ₹1,250", time: "25 minutes ago", icon: <FiShoppingCart className="text-blue-600" /> },
-    { id: 2, type: "stock", title: "Low stock alert", details: "Product #P-2045 (Wireless Mouse)", time: "1 hour ago", icon: <FiPackage className="text-orange-600" /> },
-    { id: 3, type: "supplier", title: "New supplier added", details: "TechGadgets Inc.", time: "3 hours ago", icon: <FiUsers className="text-green-600" /> }
-  ];
+  const recentData = data?.recentActivities || [];
+
+  const recentActivities = recentData.map(activity => {
+      let icon;
+      if (activity.type === 'sale') icon = <FiShoppingCart className="text-blue-600" />;
+      else if (activity.type === 'stock') icon = <FiPackage className="text-orange-600" />;
+      else icon = <FiUsers className="text-green-600" />;
+      
+      const dateObj = new Date(activity.time);
+      const timeStr = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+      return {
+          id: activity.id,
+          type: activity.type,
+          title: activity.title,
+          details: activity.details,
+          time: timeStr,
+          icon: icon
+      };
+  });
+
+  const inventorySummary = data?.inventorySummary || { lowStockItems: 0, totalCategories: 0, topSellingTotal: 0 };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -59,7 +106,7 @@ const Dashboard = () => {
                 <div className={`p-3 rounded-lg ${stat.color} mb-3`}>
                   {stat.icon}
                 </div>
-                <span className={`text-xs px-2 py-1 rounded-full ${stat.change.startsWith('+') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                <span className={`text-xs px-2 py-1 rounded-full ${stat.change ? (stat.change.startsWith('+') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800') : 'hidden'}`}>
                   {stat.change}
                 </span>
               </div>
@@ -170,7 +217,7 @@ const Dashboard = () => {
                 </div>
                 <h3 className="font-medium">Low Stock Items</h3>
               </div>
-              <p className="text-2xl font-bold text-gray-800 mb-1">8</p>
+              <p className="text-2xl font-bold text-gray-800 mb-1">{inventorySummary.lowStockItems}</p>
               <p className="text-sm text-gray-500">Items need restocking</p>
             </div>
             <div className="border rounded-lg p-4">
@@ -180,8 +227,8 @@ const Dashboard = () => {
                 </div>
                 <h3 className="font-medium">Top Selling</h3>
               </div>
-              <p className="text-2xl font-bold text-gray-800 mb-1">15</p>
-              <p className="text-sm text-gray-500">Popular products</p>
+              <p className="text-2xl font-bold text-gray-800 mb-1">{inventorySummary.topSellingTotal}</p>
+              <p className="text-sm text-gray-500">Popular products items sold</p>
             </div>
             <div className="border rounded-lg p-4">
               <div className="flex items-center mb-2">
@@ -190,7 +237,7 @@ const Dashboard = () => {
                 </div>
                 <h3 className="font-medium">Total Categories</h3>
               </div>
-              <p className="text-2xl font-bold text-gray-800 mb-1">12</p>
+              <p className="text-2xl font-bold text-gray-800 mb-1">{inventorySummary.totalCategories}</p>
               <p className="text-sm text-gray-500">Product categories</p>
             </div>
           </div>

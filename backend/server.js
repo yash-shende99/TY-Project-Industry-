@@ -9,6 +9,7 @@ import profileRoutes from "./routes/profileRoutes.js";
 import  productRoutes from "./routes/productRoutes.js"
 import customerRoutes from "./routes/customerRoutes.js"
 import supplierRoutes  from "./routes/supplierRoutes.js"
+import dashboardRoutes from "./routes/dashboardRoutes.js"
 import "./controllers/dbController.js";
 
 
@@ -29,8 +30,10 @@ app.use('/api',profileRoutes)
 app.use('/api',productRoutes)
 app.use('/api/customer',customerRoutes)
 app.use('/api/supplier',supplierRoutes)
+app.use('/api/dashboard', dashboardRoutes)
 
 
 app.listen(port, () => {
   console.log(`server listening on port ${port}`)
 })
+// Restart trigger

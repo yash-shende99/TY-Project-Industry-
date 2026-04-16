@@ -86,10 +86,13 @@ const StoreContextProvider = (props) => {
 
 
   useEffect(() => {
-    fetchCustomers();
-    fetchCategories();
-    fetchBill();
-  }, [])
+    const savedToken = localStorage.getItem('token');
+    if (savedToken) {
+      fetchCustomers();
+      fetchCategories();
+      fetchBill();
+    }
+  }, [token])
 
 
 
