@@ -5,7 +5,7 @@ import { handleSuccess, handleError } from '../utils';
 import { ToastContainer } from 'react-toastify';
 import { StoreContext } from '../Context/StoreContext';
 import { useContext } from 'react';
-import { FiSearch, FiPlus, FiX, FiUsers, FiBriefcase, FiEye } from 'react-icons/fi';
+import { FiSearch, FiPlus, FiX, FiUsers, FiBriefcase, FiEye, FiUser } from 'react-icons/fi';
 
 const CustomerAccount = () => {
     const { fetchCustomers, customerData, backend_url, token } = useContext(StoreContext);

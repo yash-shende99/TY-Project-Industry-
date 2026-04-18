@@ -237,7 +237,7 @@ function InventoryManager() {
                                             <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-300">{product.materialType}</td>
                                             <td className="px-6 py-5 whitespace-nowrap">
                                                 <span className={`px-3 py-1.5 inline-flex text-sm font-bold rounded-md ${
-                                                    product.quantity <= product.minStockLevel 
+                                                    product.quantity < 20 
                                                     ? 'bg-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.4)] border border-red-500/50 text-red-300 animate-pulse' 
                                                     : 'bg-white/5 border border-white/10 text-white'
                                                 }`}>{product.quantity}</span>
@@ -288,11 +288,11 @@ function InventoryManager() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Stock Qty</label>
-                                        <input type="number" value={quantityUpdate.quantity} onChange={(e) => setQuantityUpdate({ ...quantityUpdate, quantity: e.target.value })} className="w-full px-4 py-3 rounded-lg input-glow font-mono text-lg text-center" />
+                                        <input type="number" value={quantityUpdate.quantity ?? ''} onChange={(e) => setQuantityUpdate({ ...quantityUpdate, quantity: e.target.value })} className="w-full px-4 py-3 rounded-lg input-glow font-mono text-lg text-center" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Min Level</label>
-                                        <input type="number" value={quantityUpdate.minStockLevel} onChange={(e) => setQuantityUpdate({ ...quantityUpdate, minStockLevel: e.target.value })} className="w-full px-4 py-3 rounded-lg input-glow font-mono text-lg text-center" />
+                                        <input type="number" value={quantityUpdate.minStockLevel ?? ''} onChange={(e) => setQuantityUpdate({ ...quantityUpdate, minStockLevel: e.target.value })} className="w-full px-4 py-3 rounded-lg input-glow font-mono text-lg text-center" />
                                     </div>
                                 </div>
                             </div>

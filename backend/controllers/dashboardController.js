@@ -33,7 +33,7 @@ export const getDashboardStats = async (req, res) => {
         const activeSuppliers = await Supplier.countDocuments({ owner });
 
         // 4. Inventory Summary
-        const lowStockProductsCount = await Product.countDocuments({ owner, $expr: { $lte: ["$quantity", "$minStockLevel"] } });
+        const lowStockProductsCount = await Product.countDocuments({ owner, quantity: { $lt: 20 } });
         
         const distinctCategories = await Product.distinct("category", { owner });
         const totalCategories = distinctCategories.length;
@@ -53,7 +53,7 @@ export const getDashboardStats = async (req, res) => {
         // Fetch latest supplier
         const latestSupplier = await Supplier.findOne({ owner }).sort({ createdAt: -1 });
         // Fetch most critical low stock product
-        const criticalProduct = await Product.findOne({ owner, $expr: { $lte: ["$quantity", "$minStockLevel"] } }).sort({ quantity: 1 });
+        const criticalProduct = await Product.findOne({ owner, quantity: { $lt: 20 } }).sort({ quantity: 1 });
 
         const recentActivities = [];
         
@@ -90,6 +90,46 @@ export const getDashboardStats = async (req, res) => {
         // Sort combined recent activities by time descending
         recentActivities.sort((a, b) => new Date(b.time) - new Date(a.time));
 
+        // 6. Sales Chart Data Generation
+        const generateChartData = async (days) => {
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - days + 1); // Shift boundary back (e.g., 6 days for 7 day range)
+            startDate.setHours(0, 0, 0, 0);
+
+            const aggregate = await Invoice.aggregate([
+                { $match: { owner: owner, date: { $gte: startDate } } },
+                { 
+                    $group: { 
+                        _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                        total: { $sum: "$grandTotal" }
+                    } 
+                },
+                { $sort: { "_id": 1 } }
+            ]);
+
+            const data = [];
+            for (let i = 0; i < days; i++) {
+                const current = new Date(startDate);
+                current.setDate(current.getDate() + i);
+                const dateStr = current.toISOString().split('T')[0];
+                const matchingData = aggregate.find(d => d._id === dateStr);
+                
+                let label;
+                if (days <= 7) label = current.toLocaleDateString('en-US', { weekday: 'short' });
+                else label = current.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                
+                data.push({
+                    name: label,
+                    sales: matchingData ? matchingData.total : 0
+                });
+            }
+            return data;
+        };
+
+        const chartData7 = await generateChartData(7);
+        const chartData30 = await generateChartData(30);
+        const chartData90 = await generateChartData(90);
+
         res.status(200).json({
             stats: {
                 todaysSales,
@@ -102,7 +142,10 @@ export const getDashboardStats = async (req, res) => {
                 totalCategories,
                 topSellingTotal: topSellingItemCount
             },
-            recentActivities
+            recentActivities,
+            chartData7,
+            chartData30,
+            chartData90
         });
 
     } catch (error) {

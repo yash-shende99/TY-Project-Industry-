@@ -10,6 +10,7 @@ import  productRoutes from "./routes/productRoutes.js"
 import customerRoutes from "./routes/customerRoutes.js"
 import supplierRoutes  from "./routes/supplierRoutes.js"
 import dashboardRoutes from "./routes/dashboardRoutes.js"
+import analysisRoutes from "./routes/analysisRoutes.js"
 import "./controllers/dbController.js";
 
 
@@ -31,6 +32,7 @@ app.use('/api',productRoutes)
 app.use('/api/customer',customerRoutes)
 app.use('/api/supplier',supplierRoutes)
 app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/analysis', analysisRoutes)
 
 
 app.listen(port, () => {

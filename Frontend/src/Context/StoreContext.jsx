@@ -72,10 +72,10 @@ const StoreContextProvider = (props) => {
         history: updatedData.deposit,
       };
 
-      const response = await axios.put(backend_url+`/api/bill/update/${billId}`, updateData, {
+      await axios.put(backend_url+`/api/bill/update/${billId}`, updateData, {
         headers: { Authorization: token }
       });
-      setBill(response.data);
+      fetchBill();
     } catch (err) {
       console.error('Error updating bill:', err);
     }

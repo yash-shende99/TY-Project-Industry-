@@ -8,9 +8,9 @@ export const CreateBill = async (req, res) => {
     const owner = req.user.email; 
 
     try {
-        const { clientName, clientGstin, poNumber, deliveryChallanNumber, items, gstPercentage = 18 } = req.body;
+        const { clientName, customerName, clientGstin, poNumber, deliveryChallanNumber, items, gstPercentage = 18, poDate, dispatchDate, vehicleNumber, customerId, phoneNumber } = req.body;
 
-        const invoiceNumber = `INV-${Date.now()}`;
+        const billNumber = `INV-${Date.now()}`;
 
         let subTotal = 0;
         let netQuantity = 0;
@@ -39,10 +39,17 @@ export const CreateBill = async (req, res) => {
 
         const invoice = new Bill({
             owner,
-            invoiceNumber,
+            billNumber,
+            invoiceNumber: billNumber,
             clientName,
+            customerName: customerName || clientName,
             clientGstin: clientGstin || 'UNREGISTERED',
+            phoneNumber,
+            customerId,
             poNumber,
+            poDate,
+            dispatchDate,
+            vehicleNumber,
             deliveryChallanNumber,
             items,
             subTotal,
@@ -90,24 +97,29 @@ export const UpdateBill = async (req, res) => {
 
 
     const { billId } = req.params;
-    const { history } = req.body;
+    const { history: newTotalDeposit } = req.body;
 
     try {
-        const bill = await Bill.findById(billId);  // Simplified findById call
+        const bill = await Bill.findById(billId);
 
         if (!bill) {
             return res.status(404).json({ message: "Bill not found" });
         }
 
-        bill.deposit += history; // Update deposit amount
+        const currentDeposit = bill.deposit || 0;
+        const depositDiff = Number(newTotalDeposit) - currentDeposit;
 
-        const newHistoryEntry = {
-            date: history.date || new Date(),
-            depositHistory: history || 0,
-            paymentMethod: history.paymentMethod || 'Cash'
-        };
+        bill.deposit = Number(newTotalDeposit);
 
-        bill.history.push(newHistoryEntry);
+        if (depositDiff !== 0) {
+            const newHistoryEntry = {
+                date: new Date(),
+                depositHistory: depositDiff,
+                paymentMethod: 'Cash'
+            };
+            bill.history.push(newHistoryEntry);
+        }
+
         await bill.save();
 
         res.status(200).json({
